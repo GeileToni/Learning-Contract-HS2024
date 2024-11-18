@@ -237,6 +237,7 @@ classdef Mesh1D
             hold on
             plot(obj.e, [0,0], 'rx','MarkerSize',10)
             hold off
+
         end
     end
 end

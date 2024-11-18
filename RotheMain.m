@@ -1,5 +1,5 @@
 % author: Mauro Morini
-% last modified: 09.11.24
+% last modified: 19.11.24
 clc;clear;close all
 
 % Intitializations
@@ -7,10 +7,10 @@ a = 0;
 b = 2;
 T = pi;
 projectionType = "";
-meshTransformFrequency = 1;
-meshTransformType = "shiftHh";
-meshCreationType = "";
-Hmax = 2.^(-(2:5));
+meshTransformFrequency = 10;
+meshCreationType = "refInnerAll10";
+meshTransformType = "removeRand1";
+Hmax = 2.^(-(2:0.5:5));
 errors = zeros(1, length(Hmax));
 
 % functions
@@ -37,5 +37,12 @@ figure(1)
 tld = tiledlayout("flow");
 nexttile
 plot(MeshT.p, UT, Mesh.p, uExact(Mesh.p,T))
+xlabel("x")
+ylabel("y")
+legend("u_{h}", "u_{exact}")
 nexttile
 loglog(Hmax,errors,Hmax, Hmax.^2, '--')
+xlabel("Hmax")
+ylabel("error")
+ylim([0,1])
+legend("L2err", "Hmax^2")

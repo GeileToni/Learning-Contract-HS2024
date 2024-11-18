@@ -27,5 +27,8 @@ switch type
     case "refInnerAllSec10"
         refIdx = 2:2:size(M.t,1)-1;
         M = M.refine(M.Hmax/10, refIdx);
+    case "refInnerAll10"
+        refIdx = 2:size(M.t,1)-1;
+        M = M.refine(M.Hmax/10, refIdx);
     otherwise
 end

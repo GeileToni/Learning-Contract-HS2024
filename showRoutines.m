@@ -3,21 +3,20 @@
 clc;clear;close all;
 
 % Intitializations
-Hmax = 0.5;
+Hmax = 0.1;
 Hmin = Hmax/100;
 a = 0;
 b = 2;
 T = pi;
-meshTransformType = "rng";
-meshCreationType = "";
-paramSpec = 1;
+meshCreationType = "refInnerAllSec10";
+meshTransformType = "removeRand1";
+paramSpec = 4;
 
 % create Mesh
 Mesh = createMeshRoutines([a,b],[Hmax, Hmin],meshCreationType);
 Mesh2 = changeMeshRoutines(Mesh, meshTransformType, paramSpec);
 
-f = figure(1);
-hold on
-Mesh.plotMesh(f);
-Mesh2.plotMesh(f);
-hold off
+f1 = figure(1);
+f2 = figure(2);
+Mesh.plotMesh(f1);
+Mesh2.plotMesh(f2);
