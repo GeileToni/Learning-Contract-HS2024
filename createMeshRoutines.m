@@ -24,5 +24,8 @@ switch type
         m = (M.a + M.b)/2;
         containsm = find(M.p(M.t(:,1)) <= m & m <= M.p(M.t(:,2)));
         M = M.refine(M.Hmax/10, containsm);
+    case "refInnerAllSec10"
+        refIdx = 2:2:size(M.t,1)-1;
+        M = M.refine(M.Hmax/10, refIdx);
     otherwise
 end

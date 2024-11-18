@@ -76,7 +76,7 @@ classdef Mesh1D
             obj = updatePet(obj);
         end
 
-        function obj = removePoints(obj, delIdx)
+        function [obj, isRemoved] = removePoints(obj, delIdx)
             % removes points in p with idx in delIdx from mesh if the
             % resulting bigger element does not suprass Hmax size, else
             % return the same object with a warning
@@ -84,6 +84,7 @@ classdef Mesh1D
             % Inputs: 
             % delIdx: (m,1) idx vector with m < length(p) 
             
+            isRemoved = true;
             N = length(obj.p);
             delete = false(N,1);
             delete(delIdx) = true;
@@ -102,6 +103,7 @@ classdef Mesh1D
             delete = (pDiff <= obj.Hmax + eps) & delete;
             if sum(delete) == 0
                 warning("No point has been eliminated")
+                isRemoved = false;
             end
             obj.p([false;delete;false]) = [];
             obj = updatePet(obj);
@@ -182,6 +184,15 @@ classdef Mesh1D
             end
             obj.p = [pLoc'; obj.b];
             obj = obj.updatePet();
+        end
+
+        function removablePIdx = getRemovablePoints(obj)
+            % returns index vector of all points which can be removed
+            % without breaking the Hmax condition (1,end) are never in it
+            D = abs(diff(obj.p));
+            D = D(2:end) + D(1:end-1);
+            isRemovable = [false;D <= obj.Hmax + eps;false];
+            removablePIdx = find(isRemovable);
         end
 
         function obj = updatePet(obj)

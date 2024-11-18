@@ -11,6 +11,9 @@ switch type
         M = M.shiftMesh(M.Hmax/4);
     case "shiftHh"
         M = M.shiftMesh(M.Hmax/4+M.Hmin);
+    case "removeRand"
+        % removes random point
+
     otherwise % no change
 end
 end
