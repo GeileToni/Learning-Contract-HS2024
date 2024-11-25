@@ -9,8 +9,8 @@ T = pi;
 projectionType = "";
 meshTransformFrequency = 1;
 meshCreationType = "";
-meshTransformType = "shiftHh";
-Hmax = 2.^(-(2:0.5:4.5));
+meshTransformType = "";
+Hmax = 2.^(-(2:0.5:7));
 errors = zeros(1, length(Hmax));
 
 % functions
@@ -28,7 +28,8 @@ for i = 1:length(Hmax)
     h = Hmax(i);
     dt = h/100;
     Mesh = createMeshRoutines([a,b],[h, h/100],meshCreationType);
-    [UT, MeshT, Tend] = rothe1D(Mesh, v0, v1, f, dt, T, projectionType, meshTransformFrequency, meshTransformType);
+    EndSol = rothe1D(Mesh, v0, v1, f, dt, T, projectionType, meshTransformFrequency, meshTransformType);
+    [MeshT, Tend, UT] = EndSol.getSolution();
     errors(1,i) = FEM1D.errorsLinear1D(MeshT.t,MeshT.p,UT,@(x)0,@(x) uExact(x,Tend));
 end
 

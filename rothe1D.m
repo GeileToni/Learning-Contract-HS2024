@@ -1,6 +1,6 @@
 % author: Mauro Morini
-% last modified: 09.11.24
-function [UT, MeshT, T] = rothe1D(Mesh, v0, v1, f, dt, T, projectionType, meshTransformFrequency, meshTransformType)
+% last modified: 25.11.24
+function [EndTimeSol, PlotSol] = rothe1D(Mesh, v0, v1, f, dt, T, projectionType, meshTransformFrequency, meshTransformType, plotTimes)
 % Uses the rothe method for solving the 1d wave equation u_xx = u_tt with
 % zero dirichlet b.c.
 % Discretizes in time first then in space, calculates sequence fully discrete
@@ -21,6 +21,9 @@ function [UT, MeshT, T] = rothe1D(Mesh, v0, v1, f, dt, T, projectionType, meshTr
 % meshTransformationFrequency: positive integer denoting denoting frequency
 %           of mesh transformation (ex freq = 1 => every iteration mesh is changed
 % meshTransformType: string denoting type of mesh transformation
+% plotTimes: (1, N2) time vector with times in [0, T] at which the
+%           solutions, the actual time and the Mesh should be output for
+%           plots
 %
 % Outputs: 
 % U: (NT,1) coefficient vecor for U at time T
@@ -33,6 +36,16 @@ c = @(x) 1;
 U = {v0(Mesh.p)};
 MeshList = {Mesh, Mesh};
 t = 0:dt:T;
+
+% adapt times to plot
+if ~exist('plotTimes', 'var')
+    plotTimes = [Inf];
+else
+    plotTimes = unique(plotTimes, 'sorted');
+    plotTimes = plotTimes((dt*2 <= plotTimes) & (plotTimes <= T));
+end
+PlotSol = cell(1, length(plotTimes));
+plotSolIdx = 1;
 
 % get matrices for initial mesh
 A = FEM1D.stiffnessMatrix1D(Mesh.p,Mesh.t,c);
@@ -68,15 +81,18 @@ for i = 2:length(t)-1
     % Solve system
     RHS = dt^2*F(intIdx) + (2*M(intIdx,intIdx) - dt^2*A(intIdx,intIdx))*uNow(intIdx) - M(intIdx,intIdx)*uPrev(intIdx);
     U{i+1} = [0;M(intIdx,intIdx)\RHS;0];
+
+    % save Solution
+    if plotSolIdx <= length(plotTimes) && abs(plotTimes(plotSolIdx) - t(i+1)) < dt/2
+        WObj = WaveSolution(Mesh, t(i+1), U{i+1});
+        PlotSol{plotSolIdx} = WObj;
+        plotSolIdx = plotSolIdx + 1;
+    end
 end
 
-UT = U{end};
-MeshT = Mesh;
-T = t(end);
+% UT = U{end};
+% MeshT = Mesh;
+% T = t(end);
 
-%u1 = uExact(Mesh.p,t(i+1));
-%uExact = @(x,t)cos(t.*pi).*sin(x.*pi)
-%plot(Mesh.p, u1, Mesh.p, U{i+1}, 'x')
-
-
+EndTimeSol = WaveSolution(Mesh, t(end), U{end});
 end
