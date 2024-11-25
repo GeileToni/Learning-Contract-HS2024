@@ -7,10 +7,10 @@ a = 0;
 b = 2;
 T = pi;
 projectionType = "";
-meshTransformFrequency = 10;
-meshCreationType = "refInnerAll10";
-meshTransformType = "removeRand1";
-Hmax = 2.^(-(2:0.5:5));
+meshTransformFrequency = 1;
+meshCreationType = "";
+meshTransformType = "shiftHh";
+Hmax = 2.^(-(2:0.5:4.5));
 errors = zeros(1, length(Hmax));
 
 % functions
@@ -26,7 +26,7 @@ v1 = @(x) v1(x,0);
 
 for i = 1:length(Hmax)
     h = Hmax(i);
-    dt = h^2;
+    dt = h/100;
     Mesh = createMeshRoutines([a,b],[h, h/100],meshCreationType);
     [UT, MeshT, Tend] = rothe1D(Mesh, v0, v1, f, dt, T, projectionType, meshTransformFrequency, meshTransformType);
     errors(1,i) = FEM1D.errorsLinear1D(MeshT.t,MeshT.p,UT,@(x)0,@(x) uExact(x,Tend));
