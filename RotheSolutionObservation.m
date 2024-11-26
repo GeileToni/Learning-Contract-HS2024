@@ -7,14 +7,14 @@ a = 0;
 b = 2;
 T = pi;
 plotTimes = [0.1:0.2:T-0.1];
-Hmax = 0.01;
-Hmin = 0.001;
+Hmax = 0.1;
+Hmin = 0.01;
 r = 0.4;
 dt = Hmin*r;
 projectionType = "";
 meshTransformFrequency = 10;
 meshCreationType = "refH/2";
-meshTransformType = "shiftHh";
+meshTransformType = "shiftBackAndForth";
 
 % functions
 syms x t

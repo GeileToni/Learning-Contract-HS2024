@@ -36,6 +36,7 @@ c = @(x) 1;
 U = {v0(Mesh.p)};
 MeshList = {Mesh, Mesh};
 t = 0:dt:T;
+locMeshchangeIdx = 0;
 
 % adapt times to plot
 if ~exist('plotTimes', 'var')
@@ -63,7 +64,8 @@ for i = 2:length(t)-1
 
     % change mesh
     if mod(i-1, meshTransformFrequency) == 0
-        Mesh = changeMeshRoutines(Mesh, meshTransformType, i);
+        Mesh = changeMeshRoutines(Mesh, meshTransformType, locMeshchangeIdx);
+        locMeshchangeIdx = 1 + locMeshchangeIdx;
     end
     MeshList{i+1} = Mesh;
 

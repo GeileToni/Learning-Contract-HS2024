@@ -7,10 +7,10 @@ a = 0;
 b = 2;
 T = pi;
 projectionType = "";
-meshTransformFrequency = 2;
+meshTransformFrequency = 10;
 meshCreationType = "refH/2";
-meshTransformType = "shiftHh";
-Hmax = 2.^(-(2:0.5:6));
+meshTransformType = "shiftBackAndForth";
+Hmax = 2.^(-(2:5));
 errors = zeros(1, length(Hmax));
 
 % functions

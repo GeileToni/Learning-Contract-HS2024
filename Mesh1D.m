@@ -92,12 +92,12 @@ classdef Mesh1D
             % with Hmax and Hmin and add them to p then update
             for i = 1:length(refIdx)
                 K = obj.p(obj.t(refIdx(i),:));
-                hK = abs(K(1) - K(2));
-                if hK < obj.Hmin
+                hK = abs(K(1) - K(2))/refFact;
+                if hK < obj.Hmin - eps
                     warning("Href was too big, the element: " + refIdx(i) + " could not be refined")
                     continue
                 end
-                xLoc = linspace(K(1),K(2),refFact)';           % new points in between element              
+                xLoc = linspace(K(1),K(2),refFact+1)';           % new points in between element              
                 
                 pLoc(end+1:end+(length(xLoc)-2)) = xLoc(2:end-1);
             end

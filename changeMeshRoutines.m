@@ -11,6 +11,9 @@ switch type
         M = M.shiftMesh(M.Hmax/4);
     case "shiftHh"
         M = M.shiftMesh(M.Hmax/4+M.Hmin);
+    case "shiftBackAndForth"
+        hShift = (M.Hmax/4+M.Hmin)*(-1)^(paramSpec);
+        M = M.shiftMesh(hShift);
     case "removeRand1"
         % removes random point
         removableIdx = M.getRemovablePoints();
