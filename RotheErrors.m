@@ -7,9 +7,9 @@ a = 0;
 b = 2;
 T = pi;
 projectionType = "";
-meshTransformFrequency = 1;
-meshCreationType = "refH/2";
-meshTransformType = "shiftHh";
+meshTransformFrequency = 10;
+meshCreationType = "refInnerAll10";
+meshTransformType = "removeRand1";
 Hmax = 2.^(-(2:5));
 errors = zeros(2, length(Hmax));
 

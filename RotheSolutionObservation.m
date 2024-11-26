@@ -9,12 +9,12 @@ T = pi;
 plotTimes = [0.1:0.02:T-0.1];
 Hmax = 0.1;
 Hmin = 0.01;
-r = 0.1;
+r = 1;
 dt = Hmin*r;
 projectionType = "";
 meshTransformFrequency = 1;
-meshCreationType = "refH/2";
-meshTransformType = "removeRand";
+meshCreationType = "";
+meshTransformType = "rng";
 
 % functions
 syms x t

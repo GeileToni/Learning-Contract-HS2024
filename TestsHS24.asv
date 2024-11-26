@@ -83,7 +83,7 @@ Hmax = 0.1;
 Hmin = Hmax/10;
 M = createMeshRoutines([a,b],[Hmax, Hmin], "");
 M = M.refineByFact(1:size(M.t, 1), 11);
-f = figure(5);
+f = figure(4);
 M.plotMesh(f);
 
 %% Test removeRand
@@ -92,6 +92,4 @@ b = 1;
 Hmax = 0.1;
 Hmin = Hmax/10;
 M = createMeshRoutines([a,b],[Hmax, Hmin], "refInnerAll10");
-M = changeMeshRoutines(M, "removeRand", 1);
-f = figure(6);
-M.plotMesh(f);
+M = changeMeshRoutines(M, "removeRand")

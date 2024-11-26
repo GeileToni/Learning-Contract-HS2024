@@ -139,15 +139,15 @@ classdef Mesh1D
             obj = updatePet(obj);
         end
 
-        function [obj, isRemoved] = removeRand(obj, n, seed)
+        function obj = removeRand(obj, n, seed)
             % removes n random removable points in Mesh
+
             deleteIdx = zeros(1,n);
             removableIdx = obj.getRemovablePoints();
             if length(removableIdx) < n
-                isRemoved = false;
                 return
             end
-            rng(seed)
+            rng(paramSpec)
             for i = 1:n            
                 rdmIdx = randi([1,length(removableIdx)],1,1);
                 deleteIdx(i) = removableIdx(rdmIdx);

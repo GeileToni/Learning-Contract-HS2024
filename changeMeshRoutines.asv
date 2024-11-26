@@ -17,11 +17,22 @@ switch type
     case "removeRand1"
         % removes 1 random points
         n = 1;
-        M = M.removeRand(n, paramSpec);
+        deleteIdx = zeros(1,n);
+        removableIdx = M.getRemovablePoints();
+        if isempty(removableIdx)
+            return
+        end
+        rng(paramSpec)
+        for i = 1:n            
+            rdmIdx = randi([1,length(removableIdx)],1,1);
+            deleteIdx(i) = removableIdx(rdmIdx);
+            removableIdx(rdmIdx) = [];
+        end
+        M.p(deleteIdx) = [];
+        M = M.updatePet();
     case "removeRand"
         % removes n random points
-        n = 3;
-        M = M.removeRand(n, paramSpec);
+        M
     otherwise % no change
 end
 end
