@@ -7,10 +7,10 @@ a = 0;
 b = 2;
 T = pi;
 projectionType = "";
-meshTransformFrequency = 10;
-meshCreationType = "refInnerAll10";
-meshTransformType = "removeRand1";
-Hmax = 2.^(-(2:5));
+meshTransformFrequency = 1;
+meshCreationType = "refH/2";
+meshTransformType = "addAndRemoveRand";
+Hmax = 2.^(-(2:0.5:6));
 errors = zeros(2, length(Hmax));
 
 % functions

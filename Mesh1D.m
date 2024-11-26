@@ -139,20 +139,16 @@ classdef Mesh1D
             obj = updatePet(obj);
         end
 
-        function [obj, isRemoved] = removeRand(obj, n, seed)
-            % removes n random removable points in Mesh
-            deleteIdx = zeros(1,n);
+        function [obj, isRemoved] = removeRand(obj, seed)
+            % removes a random removable point in Mesh
+            rng(seed)
             removableIdx = obj.getRemovablePoints();
-            if length(removableIdx) < n
+            if isempty(removableIdx)
                 isRemoved = false;
                 return
             end
-            rng(seed)
-            for i = 1:n            
-                rdmIdx = randi([1,length(removableIdx)],1,1);
-                deleteIdx(i) = removableIdx(rdmIdx);
-                removableIdx(rdmIdx) = [];
-            end
+            rdmIdx = randi([1,length(removableIdx)],1,1);
+            deleteIdx = removableIdx(rdmIdx);
             obj.p(deleteIdx) = [];
             obj = obj.updatePet();
         end
@@ -253,6 +249,13 @@ classdef Mesh1D
             D = D(2:end) + D(1:end-1);
             isRemovable = [false;D <= obj.Hmax + eps;false];
             removablePIdx = find(isRemovable);
+        end
+
+        function refinableTIdx = getRefinableElements(obj, refFactor)
+            % returns index of elements which can be refined by the factor
+            % given
+            D = abs(obj.p(obj.t(:,1)) - obj.p(obj.t(:,2)));
+            refinableTIdx = find(D/refFactor >= obj.Hmin);
         end
 
         function obj = updatePet(obj)

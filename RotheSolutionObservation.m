@@ -13,8 +13,8 @@ r = 1;
 dt = Hmin*r;
 projectionType = "";
 meshTransformFrequency = 1;
-meshCreationType = "";
-meshTransformType = "rng";
+meshCreationType = "refMid10";
+meshTransformType = "addAndRemoveRand";
 
 % functions
 syms x t
@@ -34,7 +34,7 @@ Mesh = createMeshRoutines([a,b],[Hmax, Hmin],meshCreationType);
 
 %% plot at time t
 figure(1)
-tPlot = 3;
+tPlot = 1;
 [~, plotIdx] = min(abs(tPlot-plotTimes));
 plotMesh = a:Hmin:b;
 [Mesh, t, U] = PlotSol{plotIdx}.getSolution();

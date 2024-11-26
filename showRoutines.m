@@ -3,13 +3,13 @@
 clc;clear;close all;
 
 % Intitializations
-Hmax = 0.01;
-Hmin = 0.001;
+Hmax = 0.1;
+Hmin = 0.01;
 a = 0;
 b = 2;
 T = pi;
 meshCreationType = "refH/2";
-meshTransformType = "";
+meshTransformType = "addAndRemoveRand";
 paramSpec = 4;
 
 % create Mesh
