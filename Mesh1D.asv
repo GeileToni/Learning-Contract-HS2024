@@ -1,5 +1,5 @@
 % author: Mauro Morini
-% last modified: 26.11.24
+% last modified: 02.11.24
 classdef Mesh1D
     % 
 
@@ -98,8 +98,14 @@ classdef Mesh1D
                     continue
                 end
                 xLoc = linspace(K(1),K(2),refFact)';           % new points in between element              
-                
-                pLoc(end+1:end+(length(xLoc)-2)) = xLoc(2:end-1);
+                if abs(xLoc(end) - K(2)) < obj.Hmin
+                    xLoc = xLoc(1:end-1);
+                end
+                xLoc = xLoc(2:end);
+                if isempty(xLoc)
+                    warning("Href was too big, the element: " + refIdx(i) + " could not be refined")
+                end
+                pLoc(end+1:end+length(xLoc)) = xLoc;
             end
             obj.p = pLoc;
             obj = updatePet(obj);

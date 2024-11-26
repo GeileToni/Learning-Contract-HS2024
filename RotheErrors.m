@@ -7,10 +7,10 @@ a = 0;
 b = 2;
 T = pi;
 projectionType = "";
-meshTransformFrequency = 1;
-meshCreationType = "";
-meshTransformType = "";
-Hmax = 2.^(-(2:0.5:7));
+meshTransformFrequency = 2;
+meshCreationType = "refH/2";
+meshTransformType = "shiftHh";
+Hmax = 2.^(-(2:0.5:6));
 errors = zeros(1, length(Hmax));
 
 % functions
@@ -26,8 +26,8 @@ v1 = @(x) v1(x,0);
 
 for i = 1:length(Hmax)
     h = Hmax(i);
-    dt = h/100;
-    Mesh = createMeshRoutines([a,b],[h, h/100],meshCreationType);
+    dt = 0.9*h/10;
+    Mesh = createMeshRoutines([a,b],[h, h/10],meshCreationType);
     EndSol = rothe1D(Mesh, v0, v1, f, dt, T, projectionType, meshTransformFrequency, meshTransformType);
     [MeshT, Tend, UT] = EndSol.getSolution();
     errors(1,i) = FEM1D.errorsLinear1D(MeshT.t,MeshT.p,UT,@(x)0,@(x) uExact(x,Tend));
@@ -42,8 +42,8 @@ xlabel("x")
 ylabel("y")
 legend("u_{h}", "u_{exact}")
 nexttile
-loglog(Hmax,errors,Hmax, Hmax.^2, '--')
+loglog(Hmax,errors,Hmax, Hmax.^2, '--',Hmax, Hmax, '--')
 xlabel("Hmax")
 ylabel("error")
-ylim([0,1])
-legend("L2err", "Hmax^2")
+%ylim([0,1])
+legend("L2err", "Hmax^2", "Hmax")

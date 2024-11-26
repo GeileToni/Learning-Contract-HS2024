@@ -6,14 +6,14 @@ clc;clear;close all
 a = 0;
 b = 2;
 T = pi;
-plotTimes = [1, 2];
-Hmax = 0.1;
-Hmin = 0.01;
-r = 0.9;
+plotTimes = [0.1:0.2:T-0.1];
+Hmax = 0.01;
+Hmin = 0.001;
+r = 0.4;
 dt = Hmin*r;
 projectionType = "";
-meshTransformFrequency = 1;
-meshCreationType = "";
+meshTransformFrequency = 10;
+meshCreationType = "refH/2";
 meshTransformType = "shiftHh";
 
 % functions
@@ -33,7 +33,10 @@ Mesh = createMeshRoutines([a,b],[Hmax, Hmin],meshCreationType);
 
 
 %% plot
-plotIdx = 2;
+plotIdx = 15;
 plotMesh = a:Hmin:b;
 [Mesh, t, U] = PlotSol{plotIdx}.getSolution();
 plot(plotMesh, uExact(plotMesh, t), Mesh.p, U, Mesh.p, zeros(size(Mesh.p, 1)), '.')
+legend("exact sol", "numerical sol")
+title("T = " + t)
+

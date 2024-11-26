@@ -12,7 +12,7 @@ M.plotMesh(f);
 
 %% shift test
 M = Mesh1D([-2,2], [0.4, 0.001]);
-M = M.shiftMesh(0.06);
+M = M.shiftMesh(-0.2);
 f = figure(2);
 M.plotMesh(f);
 
@@ -75,3 +75,9 @@ Hmin = Hmax/100;
 M = createMeshRoutines([a,b],[Hmax, Hmin], "refMid10");
 f = figure(4);
 M.plotMesh(f);
+
+%% Test refineByFact
+a = 0;
+b = 1;
+Hmax = 0.1;
+Hmin = Hmax/100;

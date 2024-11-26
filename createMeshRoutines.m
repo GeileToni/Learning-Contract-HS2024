@@ -3,12 +3,12 @@
 function M = createMeshRoutines(ab, H, type)
 % Contains mesh creation routines 
 M = Mesh1D(ab, H);
-switch type
+switch type(1)
     case "rng1"
         % create rng mesh
         M = M.createRngMesh(1);
     case "rngRef5,1"
-        % refine random elements by factor 5 with seed 1
+        % refine one random element by factor 5 with seed 1
         r = rng(1, "twister");
         nT = size(M.t,1);
         numRef = rand(1);
