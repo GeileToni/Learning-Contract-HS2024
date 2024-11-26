@@ -6,15 +6,15 @@ clc;clear;close all
 a = 0;
 b = 2;
 T = pi;
-plotTimes = [0.1:0.2:T-0.1];
+plotTimes = [0.1:0.02:T-0.1];
 Hmax = 0.1;
 Hmin = 0.01;
-r = 0.4;
+r = 0.1;
 dt = Hmin*r;
 projectionType = "";
-meshTransformFrequency = 10;
+meshTransformFrequency = 2;
 meshCreationType = "refH/2";
-meshTransformType = "shiftBackAndForth";
+meshTransformType = "shiftHh";
 
 % functions
 syms x t
@@ -32,11 +32,32 @@ Mesh = createMeshRoutines([a,b],[Hmax, Hmin],meshCreationType);
 [EndSol, PlotSol] = rothe1D(Mesh, v0, v1, f, dt, T, projectionType, meshTransformFrequency, meshTransformType, plotTimes);
 
 
-%% plot
-plotIdx = 15;
+%% plot at time t
+figure(1)
+tPlot = 3;
+[~, plotIdx] = min(abs(tPlot-plotTimes));
 plotMesh = a:Hmin:b;
 [Mesh, t, U] = PlotSol{plotIdx}.getSolution();
-plot(plotMesh, uExact(plotMesh, t), Mesh.p, U, Mesh.p, zeros(size(Mesh.p, 1)), '.')
+plot(plotMesh, uExact(plotMesh, t), 'Color',"#A2142F")
+hold on
+plot(Mesh.p, U,'Color', "#0072BD")
+plot(Mesh.p,zeros(size(Mesh.p, 1)),'.', 'Color', "#77AC30")
+hold off
 legend("exact sol", "numerical sol")
 title("T = " + t)
 
+%% plot all
+figure(2)
+for i = 1:length(plotTimes)
+    [Mesh, t, U] = PlotSol{i}.getSolution();
+    plot(plotMesh, uExact(plotMesh, t), 'Color',"#A2142F")
+    hold on
+    plot(Mesh.p, U,'Color', "#0072BD")
+    plot(Mesh.p,zeros(size(Mesh.p, 1)),'.', 'Color', "#77AC30")
+    hold off
+    ylim([-1,1])
+    legend("exact sol", "numerical sol")
+    title("T = " + t)
+    drawnow
+    pause(0.01)
+end
