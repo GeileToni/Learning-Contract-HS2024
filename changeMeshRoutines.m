@@ -14,15 +14,19 @@ switch type
     case "shiftBackAndForth"
         hShift = (M.Hmax/4+M.Hmin)*(-1)^(paramSpec);
         M = M.shiftMesh(hShift);
-    case "removeRand1"
-        % removes random point
-        removableIdx = M.getRemovablePoints();
-        if isempty(removableIdx)
-            return
+    case "removeRand"
+        % removes n random points
+        n = 1;
+        deleteIdx = [];
+        for i = 1:n
+            removableIdx = M.getRemovablePoints();
+            if isempty(removableIdx)
+                return
+            end
+            rng(paramSpec)
+            rdmIdx = randi([1,length(removableIdx)],1,1);
+            deleteIdx = removableIdx(rdmIdx);
         end
-        rng(paramSpec)
-        rdmIdx = randi([1,length(removableIdx)],1,1);
-        deleteIdx = removableIdx(rdmIdx);
         M.p(deleteIdx) = [];
         M = M.updatePet();
     otherwise % no change

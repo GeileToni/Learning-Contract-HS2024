@@ -12,9 +12,9 @@ Hmin = 0.01;
 r = 0.1;
 dt = Hmin*r;
 projectionType = "";
-meshTransformFrequency = 2;
+meshTransformFrequency = 1;
 meshCreationType = "refH/2";
-meshTransformType = "shiftHh";
+meshTransformType = "removeRand";
 
 % functions
 syms x t
