@@ -1,15 +1,18 @@
 % author: Mauro Morini
-% last modified: 19.11.24
+% last modified: 03.12.24
 clc;clear;close all
+
+MeshCreationTypes = ["rng1", "rngRef5,1", "refH/2", "refMid10", "refInnerAllSec10", "refInnerAll10"];
+MeshTransformTypes = ["rng", "shiftH/4", "shiftHh", "shiftBackAndForth", "removeRand1", "removeRand", "addAndRemoveRand"];
 
 % Intitializations
 a = 0;
 b = 2;
 T = pi;
 projectionType = "";
-meshTransformFrequency = 1;
-meshCreationType = "refH/2";
-meshTransformType = "addAndRemoveRand";
+meshTransformFrequency = 20;
+meshCreationType = MeshCreationTypes(3);
+meshTransformType = MeshTransformTypes(4);
 Hmax = 2.^(-(2:0.5:6));
 errors = zeros(2, length(Hmax));
 

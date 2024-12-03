@@ -2,6 +2,9 @@
 % last modified: 25.12.24
 clc;clear;close all
 
+MeshCreationTypes = ["rng1", "rngRef5,1", "refH/2", "refMid10", "refInnerAllSec10", "refInnerAll10"];
+MeshTransformTypes = ["rng", "shiftH/4", "shiftHh", "shiftBackAndForth", "removeRand1", "removeRand", "addAndRemoveRand"];
+
 % Intitializations
 a = 0;
 b = 2;
@@ -12,9 +15,9 @@ Hmin = 0.01;
 r = 1;
 dt = Hmin*r;
 projectionType = "";
-meshTransformFrequency = 1;
-meshCreationType = "refMid10";
-meshTransformType = "addAndRemoveRand";
+meshTransformFrequency = 10;
+meshCreationType = MeshCreationTypes(3);
+meshTransformType = MeshTransformTypes(4);
 
 % functions
 syms x t
