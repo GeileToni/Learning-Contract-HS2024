@@ -1,6 +1,6 @@
 % author: Mauro Morini
 % last modified: 25.11.24
-function [EndTimeSol, PlotSol] = rothe1D(Mesh, v0, v1, f, dt, T, projectionType, meshTransformFrequency, meshTransformType, plotTimes)
+function [EndTimeSol, PlotSol] = rothe1D(Mesh, v0, v1, f, dt, T, projectionType, meshTransformer, plotTimes)
 % Uses the rothe method for solving the 1d wave equation u_xx = u_tt with
 % zero dirichlet b.c.
 % Discretizes in time first then in space, calculates sequence fully discrete
@@ -18,9 +18,8 @@ function [EndTimeSol, PlotSol] = rothe1D(Mesh, v0, v1, f, dt, T, projectionType,
 % dt: scalar constant time step
 % T: scalar end time
 % projectionType: string defining the projection type
-% meshTransformationFrequency: positive integer denoting denoting frequency
-%           of mesh transformation (ex freq = 1 => every iteration mesh is changed
-% meshTransformType: string denoting type of mesh transformation
+% meshTransformer: MeshTransformer type containing information for the mesh
+%                   transformation
 % plotTimes: (1, N2) time vector with times in [0, T] at which the
 %           solutions, the actual time and the Mesh should be output for
 %           plots
@@ -36,7 +35,6 @@ c = @(x) 1;
 U = {v0(Mesh.p)};
 MeshList = {Mesh, Mesh};
 t = 0:dt:T;
-locMeshchangeIdx = 0;
 
 % adapt times to plot
 if ~exist('plotTimes', 'var')
@@ -63,20 +61,20 @@ U{2} = [0;M(intIdx,intIdx)\RHS;0];
 for i = 2:length(t)-1
 
     % change mesh
-    if mod(i-1, meshTransformFrequency) == 0
-        Mesh = changeMeshRoutines(Mesh, meshTransformType, locMeshchangeIdx);
-        locMeshchangeIdx = 1 + locMeshchangeIdx;
-    end
+    [meshTransformer, Mesh, meshWasChanged] = meshTransformer.isTimeToChange(Mesh, t(i), i);
     MeshList{i+1} = Mesh;
-
+    
+    if meshWasChanged       
+        % Assemble matrices
+        M = FEM1D.massMatrix1D(Mesh.p, Mesh.t, c);
+        M = diag(sum(M, 2));                                % mass-lumped
+        A = FEM1D.stiffnessMatrix1D(Mesh.p,Mesh.t,c);
+    end
+    
     % project previous U onto current mesh
     uPrev = project(U{i-1}, MeshList{i-1}.p, Mesh.p, projectionType);
     uNow = project(U{i}, MeshList{i}.p, Mesh.p, projectionType);
-    
-    % Assemble matrices
-    M = FEM1D.massMatrix1D(Mesh.p, Mesh.t, c);
-    M = diag(sum(M, 2));                                % mass-lumped
-    A = FEM1D.stiffnessMatrix1D(Mesh.p,Mesh.t,c);
+
     F = FEM1D.loadVector1D(Mesh.p, Mesh.t, @(x) f(x,t(i+1)));
     intIdx = 2:(size(A,2)-1);
 

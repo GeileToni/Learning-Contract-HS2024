@@ -2,19 +2,21 @@
 % last modified: 03.12.24
 clc;clear;close all
 
-MeshCreationTypes = ["rng1", "rngRef5,1", "refH/2", "refMid10", "refInnerAllSec10", "refInnerAll10"];
-MeshTransformTypes = ["rng", "shiftH/4", "shiftHh", "shiftBackAndForth", "removeRand1", "removeRand", "addAndRemoveRand"];
+MeshCreationTypes = ["rng1", "rngRef5,1", "refH/2", "refMid10", "refInnerAllSec10", "refInnerAll10",""];
+MeshTransformTypes = ["rng", "shiftH/4", "shiftHh", "shiftBackAndForth", "removeRand1", "removeRand", "addAndRemoveRand",""];
 
 % Intitializations
 a = 0;
 b = 2;
 T = pi;
 projectionType = "";
-meshTransformFrequency = 20;
+meshTransformFrequency = 1;
+frequencyType = "regular";
 meshCreationType = MeshCreationTypes(3);
 meshTransformType = MeshTransformTypes(4);
 Hmax = 2.^(-(2:0.5:6));
 errors = zeros(2, length(Hmax));
+r = 0.9;
 
 % functions
 syms x t
@@ -31,9 +33,10 @@ v1 = @(x) v1(x,0);
 
 for i = 1:length(Hmax)
     h = Hmax(i);
-    dt = 0.9*h/10;
+    dt = r*h/10;
     Mesh = createMeshRoutines([a,b],[h, h/10],meshCreationType);
-    EndSol = rothe1D(Mesh, v0, v1, f, dt, T, projectionType, meshTransformFrequency, meshTransformType);
+    MT = MeshTransformer(frequencyType, meshTransformFrequency, meshTransformType);
+    EndSol = rothe1D(Mesh, v0, v1, f, dt, T, projectionType, MT);
     [MeshT, Tend, UT] = EndSol.getSolution();
     [errors(1,i), errors(2,i)] = FEM1D.errorsLinear1D(MeshT.t,MeshT.p,UT,@(x) dudx(x,Tend),@(x) uExact(x,Tend));
 end
@@ -50,5 +53,5 @@ nexttile
 loglog(Hmax,errors(1,:),Hmax, Hmax.^2, '--',Hmax, Hmax, '--', Hmax, errors(2,:))
 xlabel("Hmax")
 ylabel("error")
-%ylim([0,1])
+% ylim([0,1])
 legend("L2err", "Hmax^2", "Hmax", "H1err")

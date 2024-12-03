@@ -53,13 +53,12 @@ classdef MeshTransformer
             end
         end
 
-        function [obj, Mesh] = isTimeToChange(obj, Mesh, currentTime, currentIdx)
+        function [obj, Mesh, meshWasChanged] = isTimeToChange(obj, Mesh, currentTime, currentIdx)
             % depending on frequency checks if this iteration/ at this time
             % there should be made a mesh change and treats it accordingly
-            
+            meshWasChanged = false;
             switch obj.frequencyType
                 case "regular"
-                    assert(isinteger(obj.frequency) && obj.frequency >= 0 && isscalar(obj.frequency))
                     if ~(mod(currentIdx-1, obj.frequency) == 0)
                         return
                     end
@@ -67,6 +66,8 @@ classdef MeshTransformer
                     return
             end
             [obj, Mesh] = obj.changeMeshWithRoutine(Mesh);
+            obj.transformCounter = obj.transformCounter + 1;
+            meshWasChanged = true;
         end
     end
 end

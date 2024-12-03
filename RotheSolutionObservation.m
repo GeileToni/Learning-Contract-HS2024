@@ -9,13 +9,15 @@ MeshTransformTypes = ["rng", "shiftH/4", "shiftHh", "shiftBackAndForth", "remove
 a = 0;
 b = 2;
 T = pi;
-plotTimes = [0.1:0.02:T-0.1];
 Hmax = 0.1;
-Hmin = 0.01;
-r = 1;
+Hmin = Hmax/10;
+r = 0.9;
 dt = Hmin*r;
+plotTimes = [0.1:0.02:T-0.1];
+%plotTimes = 2*dt:dt:T;
 projectionType = "";
 meshTransformFrequency = 10;
+frequencyType = "regular";
 meshCreationType = MeshCreationTypes(3);
 meshTransformType = MeshTransformTypes(4);
 
@@ -31,8 +33,9 @@ v0 = @(x) uExact(x, 0);
 v1 = @(x) v1(x,0);
 
 % calculate solution
+MT = MeshTransformer(frequencyType, meshTransformFrequency, meshTransformType);
 Mesh = createMeshRoutines([a,b],[Hmax, Hmin],meshCreationType);
-[EndSol, PlotSol] = rothe1D(Mesh, v0, v1, f, dt, T, projectionType, meshTransformFrequency, meshTransformType, plotTimes);
+[EndSol, PlotSol] = rothe1D(Mesh, v0, v1, f, dt, T, projectionType, MT, plotTimes);
 
 
 %% plot at time t
@@ -51,6 +54,7 @@ title("T = " + t)
 
 %% plot all
 figure(2)
+plotMesh = a:Hmin:b;
 for i = 1:length(plotTimes)
     [Mesh, t, U] = PlotSol{i}.getSolution();
     plot(plotMesh, uExact(plotMesh, t), 'Color',"#A2142F")
