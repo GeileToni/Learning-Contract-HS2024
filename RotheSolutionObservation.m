@@ -13,13 +13,22 @@ Hmax = 0.1;
 Hmin = Hmax/10;
 r = 0.9;
 dt = Hmin*r;
+
+% % possibly calculate stable dt
+% pTemp = (a:Hmin:b)';
+% tTemp = [(1:length(pTemp)-1)', (2:length(pTemp))'];
+% ATemp = FEM1D.stiffnessMatrix1D(pTemp, tTemp, @(x) 1);
+% MTemp = FEM1D.massMatrix1D(pTemp, tTemp, @(x) 1);
+% dtStable = sqrt(eigs(MTemp,1,0)/eigs(ATemp,1));
+% dt = dtStable;
+
 plotTimes = [0.1:0.02:T-0.1];
 %plotTimes = 2*dt:dt:T;
 projectionType = "";
-meshTransformFrequency = 10;
+meshTransformFrequency = 1;
 frequencyType = "regular";
 meshCreationType = MeshCreationTypes(3);
-meshTransformType = MeshTransformTypes(4);
+meshTransformType = MeshTransformTypes(3);
 
 % functions
 syms x t
@@ -40,7 +49,7 @@ Mesh = createMeshRoutines([a,b],[Hmax, Hmin],meshCreationType);
 
 %% plot at time t
 figure(1)
-tPlot = 1;
+tPlot = 3;
 [~, plotIdx] = min(abs(tPlot-plotTimes));
 plotMesh = a:Hmin:b;
 [Mesh, t, U] = PlotSol{plotIdx}.getSolution();

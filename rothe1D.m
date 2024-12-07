@@ -61,7 +61,7 @@ U{2} = [0;M(intIdx,intIdx)\RHS;0];
 for i = 2:length(t)-1
 
     % change mesh
-    [meshTransformer, Mesh, meshWasChanged] = meshTransformer.isTimeToChange(Mesh, t(i), i);
+    [meshTransformer, Mesh, meshWasChanged] = meshTransformer.isTimeToChange(Mesh, t, i);
     MeshList{i+1} = Mesh;
     
     if meshWasChanged       
