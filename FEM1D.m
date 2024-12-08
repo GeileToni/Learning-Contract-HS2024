@@ -161,7 +161,7 @@ classdef FEM1D
         % initialize variables depending on Dof 
         switch Dof
             case 2
-                % first derivative shape functions 
+                % shape functions 
                 N = {@(xi) (1-xi)/2, @(xi) (1+xi)/2};
         
                 % quadrature 
@@ -170,7 +170,7 @@ classdef FEM1D
                 w = [1, 4, 1]/3;     
                 B = [N{1}(y); N{2}(y)];
             case 3
-                % first derivative shape functions 
+                % shape functions 
                 N = {@(xi)1/2*(xi.^2 - xi), @(xi) 1 - xi.^2, @(xi) 1/2*(xi + xi.^2)};
         
                 % quadrature 
@@ -197,10 +197,27 @@ classdef FEM1D
         end
         AK = AK*(h/2);
         end
+        
+        % author: Mauro Morini
+        % last modified: 08.12.24
+        function b = loadVector1D(x, T, f)
+            Dof = size(T,2);
+
+            switch Dof
+                case 1
+                    error("connectivity matrix needs to have more than 1 node in element")
+                case 2
+                    b = FEM1D.loadVectorLinear1D(x,T,f);
+                case 3
+                    b = FEM1D.loadVectorQuadratic1D(x,T,f);
+                otherwise
+                    error("load vector for " + Dof + " : degrees of freedom per element has not been implemented")
+            end
+        end
 
         % author: Mauro Morini
         % last modified: 17.10.23
-        function b = loadVector1D(x, T, f)
+        function b = loadVectorLinear1D(x, T, f)
         % calculate the nx1 load vector for finite elements solution of the
         % poisson equation in 1D given a function handle f, a grid x and a
         % connectivity matrix T
@@ -237,6 +254,46 @@ classdef FEM1D
             b(T(i,:)) = b(T(i,:)) + bK;
         end
         end
+        
+        % author: Mauro Morini
+        % last modified: 28.10.23
+        function b = loadVectorQuadratic1D(x, T, f)
+        % calculate the nx1 load vector for finite elements solution of the
+        % poisson equation in 1D given a function handle f, a grid x and a
+        % connectivity matrix T for quadratic elements
+        
+        % number of elements
+        nEl = size(T, 1);       
+        
+        n = length(x);
+        b = zeros(n, 1);
+        
+        % iterate over elements
+        for i = 1:nEl
+        
+            % element 
+            K = x(T(i,:));
+            
+            % elementwise stepsize 
+            h = abs(K(end) - K(1));
+        
+            % shape function
+            N = {@(xi) 1/2*(xi.^2 - xi); @(xi) 1-xi.^2; @(xi) 1/2*(xi.^2 + xi)};
+        
+            % calculate elementwise load vector using simpson rule
+            w = [1, 4, 1];
+            bK = zeros(3,1);
+            y = [-1, 0, 1];
+            
+            for p = 1:3
+                bK(p) = (N{p}(y).*f(K))*w.';
+            end
+            bK = bK*h/6;
+        
+            % assemble global load vector
+            b(T(i,:)) = b(T(i,:)) + bK;
+        end
+        end
 
         % author: Mauro Morini
         % last modified: 03.11.24
@@ -250,40 +307,114 @@ classdef FEM1D
         N2 = length(p2);
         M = sparse(N2, N1);
 
-        % functions
-        N0 = @(x) (1-x)/2;
-        N1 = @(x) (1+x)/2;
-        FKInv = @(x,h,m) 2*(x-m)/h;
+        % % functions
+        % N0 = @(x) (1-x)/2;
+        % N1 = @(x) (1+x)/2;
+        % FKInv = @(x,h,m) 2*(x-m)/h;
         
         % iterate over elements of V1
         for i = 1:size(t1, 1)
             K1 = p1(t1(i,:));
-            h1 = abs(K1(1)-K1(2));
-            m1 = (K1(1)+K1(2))/2;
+
+            % h1 = abs(K1(1)-K1(end));
+            % m1 = (K1(1)+K1(end))/2;
+
             % find elements in V2 which have a non empty intersection with
             % K
             p2El = [p2(t2(:,1)), p2(t2(:,2))];
-            idxEmpty = p2El(:,2) <= K1(1) | K1(2) <= p2El(:,1);        % elements with empty intersection
+            idxEmpty = p2El(:,2) <= K1(1) | K1(end) <= p2El(:,1);        % elements with empty intersection
             idxEl = find(~idxEmpty);
             for j = 1:length(idxEl)
                 K2 = p2(t2(idxEl(j),:));
-                h2 = abs(K2(1)-K2(2));
-                m2 = (K2(1) + K2(2))/2;
-                
-                % Intersection element
-                KInt = [max(K1(1),K2(1)), min(K1(2),K2(2))];
-                hInt = abs(KInt(1)-KInt(2));
-                mInt = (KInt(1) + KInt(2))/2;
-                f = @(x) [N0(FKInv(x,h2,m2))*N0(FKInv(x,h1,m1)), N0(FKInv(x,h2,m2))*N1(FKInv(x,h1,m1));
-                            N1(FKInv(x,h2,m2))*N0(FKInv(x,h1,m1)), N1(FKInv(x,h2,m2))*N1(FKInv(x,h1,m1))];
-                Mloc = hInt/6*(f(KInt(1)) + 4*f(mInt) + f(KInt(2)));
 
+                % h2 = abs(K2(1)-K2(end));
+                % m2 = (K2(1) + K2(end))/2;
+                % 
+                % % Intersection element
+                % KInt = [max(K1(1),K2(1)), min(K1(2),K2(end))];
+                % hInt = abs(KInt(1)-KInt(2));
+                % mInt = (KInt(1) + KInt(2))/2;
+                % f = @(x) [N0(FKInv(x,h2,m2))*N0(FKInv(x,h1,m1)), N0(FKInv(x,h2,m2))*N1(FKInv(x,h1,m1));
+                %             N1(FKInv(x,h2,m2))*N0(FKInv(x,h1,m1)), N1(FKInv(x,h2,m2))*N1(FKInv(x,h1,m1))];
+                % Mloc = hInt/6*(f(KInt(1)) + 4*f(mInt) + f(KInt(2)));
+
+                Mloc = FEM1D.projMassElementMatrix1D(K1, K2);
                 M(t2(idxEl(j),:), t1(i,:)) = M(t2(idxEl(j),:), t1(i,:)) + Mloc;
-            end
-            
+            end          
         end
         end
         
+        % author: Mauro Morini
+        % last modified: 08.12.24
+        function Mloc = projMassElementMatrix1D(K1, K2)
+            Dof = length(K1);
+            Mloc = zeros(Dof);
+            FKInv = @(x,h,m) 2*(x-m)/h;
+
+            h1 = abs(K1(1)-K1(end));
+            m1 = (K1(1)+K1(end))/2;
+            h2 = abs(K2(1)-K2(end));
+            m2 = (K2(1)+K2(end))/2;
+
+            % find intersection Element
+            K = [max(K1(1),K2(1)), min(K1(end),K2(end))];
+            h = abs(K(1)-K(2));
+            m = (K(1)+K(2))/2;
+
+            % initialize variables depending on Dof 
+            switch Dof
+                case 2
+                    % shape functions 
+                    N = {@(xi) (1-xi)/2, @(xi) (1+xi)/2};
+            
+                    % quadrature 
+                    quadK = [K(1), m, K(2)];
+                    y = [-1, 0, 1];   
+                    w = [1, 4, 1]/3;     
+                case 3
+                    % shape functions 
+                    N = {@(xi)1/2*(xi.^2 - xi), @(xi) 1 - xi.^2, @(xi) 1/2*(xi + xi.^2)};
+            
+                    % quadrature 
+                    quadK = [K(1), (K(1)+m)/2, m, (K(2)+m)/2, K(2)];
+                    y = [-1, -0.5, 0, 0.5, 1];   
+                    w = [7, 32, 12, 32, 7]*(2/90);
+                    B1 = [N{1}(y); N{2}(y); N{3}(y)];
+                otherwise
+                    error("local mass matrix has not been implemented for " + Dof + " degrees of freedom")
+            end
+            B1 = zeros(Dof, length(quadK));
+            B2 = zeros(Dof, length(quadK));
+            for i = 1:Dof
+                B1(i,:) = N{i}(FKInv(quadK,h1,m1)); 
+                B2(i,:) = N{i}(FKInv(quadK,h2,m2)); 
+            end
+            % calculate integral for (A_K)_pq 
+            for p = 1:Dof
+                for q = 1:Dof
+                    Mloc(p,q) = (B1(q,:).*B2(p,:))*w.';
+                end
+            end
+            Mloc = Mloc*(h/2);
+            end
+        
+        % author: Mauro Morini
+        % last modified: 08.12.24
+        function [L2err, H1err] = errors1D(T, x, uh, dudx, u)
+            Dof = size(T,2);
+
+            switch Dof
+                case 1
+                    error("connectivity matrix needs to have more than 1 node in element")
+                case 2
+                    [L2err, H1err] = FEM1D.errorsLinear1D(T, x, uh, dudx, u);
+                case 3
+                    [L2err, H1err] = FEM1D.errorsQuad1D(T, x, uh, dudx, u);
+                otherwise
+                    error("load vector for " + Dof + " : degrees of freedom per element has not been implemented")
+            end
+        end
+
         % author: Mauro Morini
         % last modified: 24.03.24
         function [L2err, H1err] = errorsLinear1D(T, x, uh, dudx, u)

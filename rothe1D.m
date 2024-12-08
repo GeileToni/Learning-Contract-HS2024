@@ -31,10 +31,11 @@ function [EndTimeSol, PlotSol] = rothe1D(Mesh, v0, v1, f, dt, T, projectionType,
 %       different than original T
 
 % Initializations
+[p,~,t] = Mesh.getPet();
 c = @(x) 1;
-U = {v0(Mesh.p)};
+U = {v0(p)};
 MeshList = {Mesh, Mesh};
-t = 0:dt:T;
+time = 0:dt:T;
 
 % adapt times to plot
 if ~exist('plotTimes', 'var')
@@ -47,35 +48,38 @@ PlotSol = cell(1, length(plotTimes));
 plotSolIdx = 1;
 
 % get matrices for initial mesh
-A = FEM1D.stiffnessMatrix1D(Mesh.p,Mesh.t,c);
-F = FEM1D.loadVector1D(Mesh.p, Mesh.t, @(x) f(x,0));
-M = FEM1D.massMatrix1D(Mesh.p, Mesh.t, c);
+A = FEM1D.stiffnessMatrix1D(p,t,c);
+F = FEM1D.loadVector1D(p, t, @(x) f(x,0));
+M = FEM1D.massMatrix1D(p, t, c);
 M = diag(sum(M, 2));                                % mass-lumped
 intIdx = 2:(size(A,2)-1);
 
 % Calculate U1
-RHS = (dt^2*F(intIdx) - (A(intIdx,intIdx)*dt^2 - 2*M(intIdx,intIdx))*U{1}(intIdx) + 2*dt*M(intIdx,intIdx)*v1(Mesh.p(intIdx)))/2;
+RHS = (dt^2*F(intIdx) - (A(intIdx,intIdx)*dt^2 - 2*M(intIdx,intIdx))*U{1}(intIdx) + 2*dt*M(intIdx,intIdx)*v1(p(intIdx)))/2;
 U{2} = [0;M(intIdx,intIdx)\RHS;0];
 
 % Leap Frog iteration
-for i = 2:length(t)-1
+for i = 2:length(time)-1
 
     % change mesh
-    [meshTransformer, Mesh, meshWasChanged] = meshTransformer.isTimeToChange(Mesh, t, i);
+    [meshTransformer, Mesh, meshWasChanged] = meshTransformer.isTimeToChange(Mesh, time, i);
     MeshList{i+1} = Mesh;
+    [p,~,t] = Mesh.getPet();
     
     if meshWasChanged       
         % Assemble matrices
-        M = FEM1D.massMatrix1D(Mesh.p, Mesh.t, c);
+        M = FEM1D.massMatrix1D(p, t, c);
         M = diag(sum(M, 2));                                % mass-lumped
-        A = FEM1D.stiffnessMatrix1D(Mesh.p,Mesh.t,c);
+        A = FEM1D.stiffnessMatrix1D(p,t,c);
     end
     
     % project previous U onto current mesh
-    uPrev = project(U{i-1}, MeshList{i-1}.p, Mesh.p, projectionType);
-    uNow = project(U{i}, MeshList{i}.p, Mesh.p, projectionType);
+    uPrev = project(U{i-1}, MeshList{i-1}, Mesh, projectionType);           
+    uNow = project(U{i}, MeshList{i}, Mesh, projectionType);
+    % uPrev = U{i-1};
+    % uNow = U{i};
 
-    F = FEM1D.loadVector1D(Mesh.p, Mesh.t, @(x) f(x,t(i+1)));
+    F = FEM1D.loadVector1D(p, t, @(x) f(x,time(i+1)));
     intIdx = 2:(size(A,2)-1);
 
     % Solve system
@@ -83,8 +87,8 @@ for i = 2:length(t)-1
     U{i+1} = [0;M(intIdx,intIdx)\RHS;0];
 
     % save Solution
-    if plotSolIdx <= length(plotTimes) && abs(plotTimes(plotSolIdx) - t(i+1)) < dt/2
-        WObj = WaveSolution(Mesh, t(i+1), U{i+1});
+    if plotSolIdx <= length(plotTimes) && abs(plotTimes(plotSolIdx) - time(i+1)) < dt/2
+        WObj = WaveSolution(Mesh, time(i+1), U{i+1});
         PlotSol{plotSolIdx} = WObj;
         plotSolIdx = plotSolIdx + 1;
     end
@@ -94,5 +98,5 @@ end
 % MeshT = Mesh;
 % T = t(end);
 
-EndTimeSol = WaveSolution(Mesh, t(end), U{end});
+EndTimeSol = WaveSolution(Mesh, time(end), U{end});
 end

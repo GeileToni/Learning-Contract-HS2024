@@ -1,6 +1,6 @@
 % author: Mauro Morini
 % last modified: 03.11.24
-function u = project(uOld, pOld, p, projParam)
+function u = project(uOld, MeshOld, MeshNew, projParam)
 % projects solution uOld onto new mesh p
 %
 % Inputs:
@@ -12,10 +12,11 @@ function u = project(uOld, pOld, p, projParam)
 % Outputs:
 % u: (N,1) coefficient vector projected onto mesh p
 
+[pOld,~,t1] = MeshOld.getPet();
+[p,~,t2] = MeshNew.getPet();
+
 switch projParam
     case "L2"
-        t1 = [(1:length(pOld)-1)', (2:length(pOld))'];
-        t2 = [(1:length(p)-1)', (2:length(p))'];
         M = FEM1D.projMassMatrix1D(pOld,t1,p,t2);
         Mp = FEM1D.massMatrix1D(p',t2,@(x) 1);
         u = Mp\(M*uOld);

@@ -3,20 +3,22 @@
 clc;clear;close all
 
 MeshCreationTypes = ["rng1", "rngRef5,1", "refH/2", "refMid10", "refInnerAllSec10", "refInnerAll10",""];
-MeshTransformTypes = ["rng", "shiftH/4", "shiftHh", "shiftBackAndForth", "removeRand1", "removeRand", "addAndRemoveRand",""];
+MeshTransformTypes = ["rng", "shiftH/4", "shiftHh", "shiftBackAndForth", "removeRand1", "removeRand", "addAndRemoveRand"];
 
 % Intitializations
 a = 0;
 b = 2;
 T = pi;
-projectionType = "";
-meshTransformFrequency = 0;
+projectionType = "L2";
+meshTransformFrequency = 3;
 frequencyType = "regular";
-meshCreationType = MeshCreationTypes(3);
-meshTransformType = MeshTransformTypes(4);
-Hmax = 2.^(-(2:0.5:6));
+meshCreationType = MeshCreationTypes(1);
+meshTransformType = MeshTransformTypes(end);
+Hmax = 2.^(-(2:0.5:5));
 errors = zeros(2, length(Hmax));
-r = 0.9;
+r = 0.1;
+Dof = 2;
+r = r/Dof;
 
 % functions
 syms x t
@@ -35,17 +37,20 @@ for i = 1:length(Hmax)
     h = Hmax(i);
     dt = r*h/10;
     Mesh = createMeshRoutines([a,b],[h, h/10],meshCreationType);
+    Mesh.r = Dof;
     MT = MeshTransformer(frequencyType, meshTransformFrequency, meshTransformType);
     EndSol = rothe1D(Mesh, v0, v1, f, dt, T, projectionType, MT);
     [MeshT, Tend, UT] = EndSol.getSolution();
-    [errors(1,i), errors(2,i)] = FEM1D.errorsLinear1D(MeshT.t,MeshT.p,UT,@(x) dudx(x,Tend),@(x) uExact(x,Tend));
+    [p,~,t] = MeshT.getPet();
+    [errors(1,i), errors(2,i)] = FEM1D.errors1D(t,p,UT,@(x) dudx(x,Tend),@(x) uExact(x,Tend));
 end
 
 % plots
+p = MeshT.getPet();
 figure(1)
 tld = tiledlayout("flow");
 nexttile
-plot(MeshT.p, UT, Mesh.p, uExact(Mesh.p,T))
+plot(p, UT, p, uExact(p,T))
 xlabel("x")
 ylabel("y")
 legend("u_{h}", "u_{exact}")

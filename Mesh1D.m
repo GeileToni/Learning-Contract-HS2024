@@ -11,6 +11,7 @@ classdef Mesh1D
         p       % point vector (N,1)
         e       % border points (indices)
         t       % connectivity matrix (N,r)
+        r = 1   % degree of elements
     end
 
     methods
@@ -47,6 +48,30 @@ classdef Mesh1D
                 obj.p = [obj.p(1:end-1); (obj.p(end-1)+obj.b)/2; obj.b];
             end
             obj = updatePet(obj);
+        end
+
+        function [p, e, t] = getPet(obj)
+            % returns p,e,t values depending on obj.r the chosen element
+            % degree
+            p = obj.p;
+            e = obj.e;
+            t = obj.t;
+            if obj.r == 1
+                return
+            end
+
+            H = diff(p)/obj.r;
+            for i = 1:(obj.r-1)
+                pLoc = obj.p(1:end-1) + H*i;
+                p = [p;pLoc];
+            end
+            p = sort(p);
+            
+            t = zeros(size(t,1), obj.r+1);
+            % connectivity matrix
+            for i = 1:obj.r+1
+                t(:,i) = (i:obj.r:(length(p)-(obj.r+1-i)))';
+            end
         end
 
         function obj = refine(obj, Href, refIdx)
@@ -300,7 +325,6 @@ classdef Mesh1D
             hold on
             plot(obj.e, [0,0], 'rx','MarkerSize',10)
             hold off
-
         end
     end
 end
