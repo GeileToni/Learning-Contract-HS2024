@@ -10,15 +10,14 @@ a = 0;
 b = 2;
 T = pi;
 projectionType = "L2";
-meshTransformFrequency = 3;
+meshTransformFrequency = 0;
 frequencyType = "regular";
-meshCreationType = MeshCreationTypes(1);
+meshCreationType = MeshCreationTypes(3);
 meshTransformType = MeshTransformTypes(end);
 Hmax = 2.^(-(2:0.5:5));
 errors = zeros(2, length(Hmax));
-r = 0.1;
+r = 0.9;
 Dof = 2;
-r = r/Dof;
 
 % functions
 syms x t
@@ -35,7 +34,7 @@ v1 = @(x) v1(x,0);
 
 for i = 1:length(Hmax)
     h = Hmax(i);
-    dt = r*h/10;
+    dt = r*h/10/(Dof^2);
     Mesh = createMeshRoutines([a,b],[h, h/10],meshCreationType);
     Mesh.r = Dof;
     MT = MeshTransformer(frequencyType, meshTransformFrequency, meshTransformType);
@@ -45,18 +44,20 @@ for i = 1:length(Hmax)
     [errors(1,i), errors(2,i)] = FEM1D.errors1D(t,p,UT,@(x) dudx(x,Tend),@(x) uExact(x,Tend));
 end
 
-% plots
+%% plots
 p = MeshT.getPet();
 figure(1)
 tld = tiledlayout("flow");
 nexttile
-plot(p, UT, p, uExact(p,T))
+plot(p, uExact(p,T),p, UT)
 xlabel("x")
 ylabel("y")
-legend("u_{h}", "u_{exact}")
+legend("u_{exact}","u_{h}")
 nexttile
-loglog(Hmax,errors(1,:),Hmax, Hmax.^2, '--',Hmax, Hmax, '--', Hmax, errors(2,:))
+loglog(Hmax,50*errors(1,:),Hmax, Hmax.^2, '--',Hmax, Hmax, '--', Hmax, errors(2,:), Hmax, Hmax.^3,'--', Hmax, Hmax.^4,'--')
 xlabel("Hmax")
 ylabel("error")
 % ylim([0,1])
-legend("L2err", "Hmax^2", "Hmax", "H1err")
+legend("L2err", "Hmax^2", "Hmax", "H1err", "Hmax^3","Hmax^4")
+title(tld, "Dof: " + Dof + "| Projection type: " + projectionType + "| r = " + r + "| mesh Transform type = " + meshTransformType)
+

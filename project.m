@@ -18,7 +18,7 @@ function u = project(uOld, MeshOld, MeshNew, projParam)
 switch projParam
     case "L2"
         M = FEM1D.projMassMatrix1D(pOld,t1,p,t2);
-        Mp = FEM1D.massMatrix1D(p',t2,@(x) 1);
+        Mp = FEM1D.massMatrix1D(p,t2,@(x) 1);
         u = Mp\(M*uOld);
     otherwise 
         u = interp1(pOld, uOld, p);

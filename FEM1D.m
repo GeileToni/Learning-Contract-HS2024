@@ -321,7 +321,7 @@ classdef FEM1D
 
             % find elements in V2 which have a non empty intersection with
             % K
-            p2El = [p2(t2(:,1)), p2(t2(:,2))];
+            p2El = [p2(t2(:,1)), p2(t2(:,end))];
             idxEmpty = p2El(:,2) <= K1(1) | K1(end) <= p2El(:,1);        % elements with empty intersection
             idxEl = find(~idxEmpty);
             for j = 1:length(idxEl)

@@ -9,20 +9,21 @@ MeshTransformTypes = ["rng", "shiftH/4", "shiftHh", "shiftBackAndForth", "remove
 a = 0;
 b = 2;
 T = pi;
-Hmax = 2^(-4.5);
+Hmax = 2^(-4);
 Hmin = Hmax/10;
-r = 0.5;
+r = 0.9/2;
 Dof = 2;
 r = r/Dof;
 dt = Hmin*r;
 
 % % possibly calculate stable dt
-% pTemp = (a:Hmin:b)';
-% tTemp = [(1:length(pTemp)-1)', (2:length(pTemp))'];
-% ATemp = FEM1D.stiffnessMatrix1D(pTemp, tTemp, @(x) 1);
-% MTemp = FEM1D.massMatrix1D(pTemp, tTemp, @(x) 1);
-% dtStable = sqrt(eigs(MTemp,1,0)/eigs(ATemp,1));
-% dt = dtStable;
+Mesh = Mesh1D([a, b],[Hmin, Hmin/10]);
+Mesh.r = Dof;
+[pTemp,~,tTemp] = Mesh.getPet();
+ATemp = FEM1D.stiffnessMatrix1D(pTemp, tTemp, @(x) 1);
+MTemp = FEM1D.massMatrix1D(pTemp, tTemp, @(x) 1);
+dtStable = sqrt(eigs(MTemp,1,0)/eigs(ATemp,1));
+%dt = dtStable;
 
 plotTimes = [0.1:0.05:T-0.1];
 %plotTimes = 2*dt:dt:T;
@@ -30,7 +31,7 @@ projectionType = "L2";
 meshTransformFrequency = 2;
 frequencyType = "regular";
 meshCreationType = MeshCreationTypes(3);
-meshTransformType = MeshTransformTypes(end);
+meshTransformType = MeshTransformTypes(1);
 
 % functions
 syms x t
