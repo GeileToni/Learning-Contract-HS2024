@@ -487,10 +487,10 @@ classdef FEM1D
         H1err = 0;
         
         % weights QF
-        w = [5/9 8/9 5/9];
+        w = [1/3 4/3 1/3];
         
         % nodes of QF
-        y = [-sqrt(3/5), 0, sqrt(3/5)];
+        y = [-1, 0, 1];
         
         % shape functions
         N = {@(xi) 1/2*(xi.^2 - xi); @(xi) 1-xi.^2; @(xi) 1/2*(xi.^2 + xi)};
