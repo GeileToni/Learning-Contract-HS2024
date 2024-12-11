@@ -9,16 +9,16 @@ MeshTransformTypes = ["rng", "shiftH/4", "shiftHh", "shiftBackAndForth", "remove
 a = 0;
 b = 2;
 T = pi;
-projectionType = "";
-meshTransformFrequency = 1;
+projectionType = "L2";
+meshTransformFrequency = 2;
 frequencyType = "regular";
 meshCreationType = MeshCreationTypes(3);
-meshTransformType = MeshTransformTypes(end);
+meshTransformType = MeshTransformTypes(1);
 MT = MeshTransformer(frequencyType, meshTransformFrequency, meshTransformType);
-Hmax = 2.^(-(2:0.5:5));
+Hmax = 2.^(-(2:5));
 errors = zeros(2, length(Hmax));
 r = 0.9;
-Dof = 1;
+Dof = 2;
 
 % functions
 syms x t
@@ -59,5 +59,17 @@ xlabel("Hmax")
 ylabel("error")
 % ylim([0,1])
 legend("L2err", "Hmax^2", "Hmax", "H1err", "Hmax^3","Hmax^4")
-title(tld, "Dof: " + Dof + "| Projection type: " + projectionType + "| r = " + r + "| mesh Transform type = " + meshTransformType)
+title(tld, "Dof: " + Dof + "| Projection type: " + projectionType + "| r = " + r + "| mesh Transform type = " + meshTransformType + "| frequency = " + meshTransformFrequency)
 
+
+%% Calculate convergence
+log_h = log(Hmax(3:end));
+R = log_h'.^(0:1);
+% convergence order L2 error
+log_L2_err = log(errors(1,3:end));
+coeff_L2_err = R\log_L2_err';
+fprintf('convergence order L2 error: %1.4f\n',coeff_L2_err(2));
+% convergence order H1 error 
+log_H1_err = log(errors(2,3:end));
+coeff_H1_err = R\log_H1_err';
+fprintf('convergence order H1 error: %1.4f\n',coeff_H1_err(2));

@@ -24,7 +24,7 @@ classdef MeshTransformer
             meshTransformTypeIdx = mod(obj.transformCounter+1, length(obj.meshTransformType)) + 1;
             type = obj.meshTransformType(meshTransformTypeIdx);
             paramSpec = obj.transformCounter;   % parameter for change
-            n = 1;                    % number of points removed/refined
+            n = 5;                    % number of points removed/refined
             switch type
                 case "rng"
                     Mesh = Mesh.createRngMesh(paramSpec);

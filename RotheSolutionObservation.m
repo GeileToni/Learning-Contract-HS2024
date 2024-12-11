@@ -28,10 +28,10 @@ dtStable = sqrt(eigs(MTemp,1,0)/eigs(ATemp,1));
 plotTimes = [0.1:0.05:T-0.1];
 %plotTimes = 2*dt:dt:T;
 projectionType = "L2";
-meshTransformFrequency = 2;
+meshTransformFrequency = 1;
 frequencyType = "regular";
 meshCreationType = MeshCreationTypes(3);
-meshTransformType = MeshTransformTypes(1);
+meshTransformType = MeshTransformTypes(4);
 
 % functions
 syms x t

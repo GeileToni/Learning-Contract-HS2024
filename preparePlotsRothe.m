@@ -3,11 +3,11 @@
 clc;clear;close all
 
 MeshCreationTypes = ["rng1", "rngRef5,1", "refH/2", "refMid10", "refInnerAllSec10", "refInnerAll10",""];
-MeshTransformTypes = ["rng", "shiftH/4", "shiftHh", "shiftBackAndForth", "removeRand1", "removeRand", "addAndRemoveRand"];
+MeshTransformTypes = ["","rng", "shiftH/4", "shiftHh", "shiftBackAndForth", "removeRand1", "removeRand", "addAndRemoveRand"];
 
 % save rates 
-saveIdx = [1, 3, 4, 7];
-solutions = cell(2, 8);
+saveIdx = [1,2, 4, 5, 8];
+solutions = cell(2, 10);
 for k1 = 1:2
 for k3 = 1:2
 for k2 = 1:length(saveIdx)
@@ -61,7 +61,7 @@ end
 save("errorsAndSolData","solutions")
 
 
-%% PLOT
+%% PLOT ALL
 % functions
 syms x t
 uExact = sin(pi*x)*cos(pi*t);
@@ -104,3 +104,42 @@ title(tld, "Dof: " + Dof + "| mesh Transform type = " + meshTransformType + "| f
 
 end
 
+
+%% Plot one
+% Extract solutions
+Dof = 2;
+idx = 9;
+errors = solutions{Dof, idx}.errors;
+[MeshT, Tend, UT] = solutions{Dof, idx}.EndSol.getSolution();
+Hmax = solutions{Dof, idx}.Hmax;
+meshTransformType = solutions{Dof, idx}.MeshTransformer.meshTransformType;
+frequency = solutions{Dof, idx}.MeshTransformer.frequency;
+
+% plots
+p = MeshT.getPet();
+figure()
+tld = tiledlayout("flow");
+nexttile
+plot(p, uExact(p,Tend),p, UT)
+xlabel("x")
+ylabel("y")
+legend("u_{exact}","u_{h}")
+nexttile
+loglog(Hmax,errors(1,:),Hmax, Hmax.^2, '--',Hmax, Hmax, '--', Hmax, errors(2,:), Hmax, Hmax.^3,'--', Hmax, Hmax.^4,'--')
+xlabel("Hmax")
+ylabel("error")
+% ylim([0,1])
+legend("L2err", "Hmax^2", "Hmax", "H1err", "Hmax^3","Hmax^4")
+title(tld, "Dof: " + Dof + "| mesh Transform type = " + meshTransformType + "| frequency = " + frequency)
+
+idx = 1:2:9;
+log_h = log(Hmax(idx));
+R = log_h'.^(0:1);
+% convergence order L2 error
+log_L2_err = log(errors(1,idx));
+coeff_L2_err = R\log_L2_err';
+fprintf('convergence order L2 error: %1.4f\n',coeff_L2_err(2));
+% convergence order H1 error 
+log_H1_err = log(errors(2,idx));
+coeff_H1_err = R\log_H1_err';
+fprintf('convergence order H1 error: %1.4f\n',coeff_H1_err(2));
